@@ -30,6 +30,8 @@ public class ParticleSystemController : MonoBehaviour
         setStartSize();
         colour = new Color(Random.Range(0, 1f), Random.Range(0, 1f), Random.Range(0, 1f), 1f);
         setColour();
+        rateOverTime = Random.Range(1f, 25f);
+        setRateOverTime();
     }
 
     public void setDirection()
@@ -60,6 +62,13 @@ public class ParticleSystemController : MonoBehaviour
         //set colour of the particles
         var main = GetComponent<ParticleSystem>().main;
         main.startSize = startSize;
+    }
+
+    public void setRateOverTime()
+    {
+        //set colour of the particles
+        var emi = GetComponent<ParticleSystem>().emission;
+        emi.rateOverTime = rateOverTime;
     }
 
 }
