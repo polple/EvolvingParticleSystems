@@ -2742,10 +2742,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IndividualPrefab: {fileID: 6569497064323394938, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
-  populationSize: 50
+  populationSize: 100
   timePassed: 0
   trialTime: 5
   population: []
+  lastPrimeCandidate: {fileID: 0}
 --- !u!4 &583122070
 Transform:
   m_ObjectHideFlags: 0

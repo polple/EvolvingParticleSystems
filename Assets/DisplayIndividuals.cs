@@ -18,11 +18,11 @@ public class DisplayIndividuals : MonoBehaviour
         int[] specimentNumbers = new int[SpecimenContainers.Length];
         ga = this.GetComponent<GeneticAlgorithm>();
 
+        //Random Pick
         //loop over number of containers
         for (int i = 0; i < SpecimenContainers.Length; i++)
         {
             //Pick a random individual that has not already been picked
-            Debug.Log(ga.population.Count);
             int ran = Random.Range(0, ga.population.Count);
             while (specimentNumbers.Contains(ran))
             {
@@ -33,6 +33,22 @@ public class DisplayIndividuals : MonoBehaviour
             GameObject ranInd = ga.population[ran];
             ranInd.transform.position = SpecimenContainers[i].transform.position;
             ranInd.transform.parent = SpecimenContainers[i].transform;
+        }
+    }
+
+    public void putTopIndividualsOnDisplay()
+    {
+        int[] specimentNumbers = new int[SpecimenContainers.Length];
+        ga = this.GetComponent<GeneticAlgorithm>();
+
+        //In order of Best
+        //loop over number of containers
+        for (int i = 0; i < SpecimenContainers.Length; i++)
+        {
+            //do things with the selected individual
+            GameObject topInd = ga.population[i];
+            topInd.transform.position = SpecimenContainers[i].transform.position;
+            topInd.transform.parent = SpecimenContainers[i].transform;
         }
     }
 

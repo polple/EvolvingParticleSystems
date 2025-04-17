@@ -23,15 +23,12 @@ public class ParticleSystemController : MonoBehaviour
     public void firstGen()
     {
         direction = Quaternion.LookRotation(Random.onUnitSphere).eulerAngles;
-        setDirection();
         startSpeed = Random.Range(0.1f, 3f);
-        setStartSpeed();
         startSize = Random.Range(0.05f, 1f);
-        setStartSize();
         colour = new Color(Random.Range(0, 1f), Random.Range(0, 1f), Random.Range(0, 1f), 1f);
-        setColour();
         rateOverTime = Random.Range(1f, 25f);
-        setRateOverTime();
+
+        setAllBasedOnController();
     }
 
     public void setDirection()
@@ -44,9 +41,9 @@ public class ParticleSystemController : MonoBehaviour
     public void setColour()
     {
         //set colour of the particles
-        var main = GetComponent<ParticleSystem>().main;
-        main.startColor = colour;
-        //set colour of the body
+        //var main = GetComponent<ParticleSystem>().main;
+        //main.startColor = colour;
+        //set colour of the render material
         GetComponent<Renderer>().material.color = colour;
     }
 
@@ -69,6 +66,16 @@ public class ParticleSystemController : MonoBehaviour
         //set colour of the particles
         var emi = GetComponent<ParticleSystem>().emission;
         emi.rateOverTime = rateOverTime;
+    }
+
+
+    public void setAllBasedOnController()
+    {
+        setDirection();
+        setColour();
+        setStartSpeed();
+        setStartSize();
+        setRateOverTime();
     }
 
 }

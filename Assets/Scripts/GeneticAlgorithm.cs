@@ -16,6 +16,8 @@ public class GeneticAlgorithm : MonoBehaviour
     int generation = 1;
     bool started = false;
 
+    public GameObject lastPrimeCandidate;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -61,6 +63,7 @@ public class GeneticAlgorithm : MonoBehaviour
             individual.GetComponent<ParticleSystemController>().fitness = fitness;
         }
 
+        lastPrimeCandidate = PrimeIndividualContainer.transform.GetChild(0).gameObject;
     }
 
     public float getFitnessBasedOnSimilarity(GameObject PrimeIndividual, GameObject IndividualBeingChecked)
@@ -101,46 +104,43 @@ public class GeneticAlgorithm : MonoBehaviour
                 cont.startSpeed = parent1.GetComponent<ParticleSystemController>().startSpeed; }
             else { 
                 cont.startSpeed = parent2.GetComponent<ParticleSystemController>().startSpeed; }
-            cont.setStartSpeed();
 
             //Size to inherit
             if (Random.value > 0.5f) { 
                 cont.startSize = parent1.GetComponent<ParticleSystemController>().startSize; }
             else { 
                 cont.startSize = parent2.GetComponent<ParticleSystemController>().startSize; }
-            cont.setStartSize();
 
             //Direction to inherit
             if (Random.value > 0.5f) { 
                 cont.direction = parent1.GetComponent<ParticleSystemController>().direction; }
             else { 
                 cont.direction = parent2.GetComponent<ParticleSystemController>().direction; }
-            cont.setDirection();
 
             //colour to inherit
             if (Random.value > 0.5f) { 
                 cont.colour = parent1.GetComponent<ParticleSystemController>().colour; }
             else { 
                 cont.colour = parent2.GetComponent<ParticleSystemController>().colour; }
-            cont.setColour();
 
             //RateOverTime to inherit
             if (Random.value > 0.5f) { 
                 cont.rateOverTime = parent1.GetComponent<ParticleSystemController>().rateOverTime; }
             else { 
                 cont.rateOverTime = parent2.GetComponent<ParticleSystemController>().rateOverTime; }
-            cont.setRateOverTime();
 
         }
 
         //Potential Smaller Additional Mutation
-        if (rand > 90) //smaller mutation with 10% chance
+        if (rand > 20) //smaller mutations with 80% chance to occur
         {
-            float directionChange = Random.Range(-1f, 1f);
-            float speedChange = Random.Range(-0.2f, 0.6f);
-            float sizeChange = Random.Range(-0.2f, 0.6f);
-            float colourChange = Random.Range(-1, 1f);
-            float rateOverTimeChange = Random.Range(-2, 2f);
+            float directionChange = Random.Range(-10f, 10f);
+            float speedChange = Random.Range(-0.5f, 0.5f);
+            float sizeChange = Random.Range(-0.2f, 0.2f);
+            float colourChange_r = Random.Range(-0.3f, 0.3f);
+            float colourChange_g = Random.Range(-0.3f, 0.3f);
+            float colourChange_b = Random.Range(-0.3f, 0.3f);
+            float rateOverTimeChange = Random.Range(-3, 3f);
 
             //can alter x,y, and/or z direction
             int pickDir = Random.Range(0, 4);
@@ -157,14 +157,25 @@ public class GeneticAlgorithm : MonoBehaviour
                 cont.startSize = cont.startSize + sizeChange;
 
             //partial mutate Colour
-            if (Random.value > 0.5f)
-                cont.colour = new Color(cont.colour.r + colourChange, cont.colour.g + colourChange, cont.colour.b + colourChange, 1f);
+            if (Random.value > 0.5f && cont.colour.r+colourChange_r<=1 && cont.colour.r+colourChange_r>=0)
+                cont.colour = new Color(cont.colour.r + colourChange_r, cont.colour.g, cont.colour.b, 1f);
+            if (Random.value > 0.5f && cont.colour.g+colourChange_g<=1 && cont.colour.g + colourChange_g >= 0)
+                cont.colour = new Color(cont.colour.r, cont.colour.g + colourChange_g, cont.colour.b, 1f);
+            if (Random.value > 0.5f && cont.colour.b+colourChange_b<=1 && cont.colour.b + colourChange_b >= 0)
+                cont.colour = new Color(cont.colour.r, cont.colour.g, cont.colour.b + colourChange_b, 1f);
 
             //partial mutate startSize
             if (Random.value > 0.5f)
                 cont.rateOverTime = cont.rateOverTime + rateOverTimeChange;
 
         }
+
+        //Apply the DNA to the offsprings' particle system
+        cont.setAllBasedOnController();
+
+        //set fitness of offspring to similarity to last prime
+        float fitness = getFitnessBasedOnSimilarity(lastPrimeCandidate, offspring);
+        offspring.GetComponent<ParticleSystemController>().fitness = fitness;
 
         return offspring;
     }
@@ -176,6 +187,7 @@ public class GeneticAlgorithm : MonoBehaviour
         population.Clear();
         for (int i = (int)(3 * sortedPop.Count / 4.0f) - 1; i < sortedPop.Count - 1; i++)
         {
+            Debug.Log(i);
             population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
             population.Add(Breed(sortedPop[i + 1], sortedPop[i]));
             population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
@@ -189,8 +201,9 @@ public class GeneticAlgorithm : MonoBehaviour
         }
         generation++;
 
-        //put random new individuals on display
-        this.GetComponent<DisplayIndividuals>().putRandomIndividualsOnDisplay();
+        //put top new individuals on display
+        population = population.OrderByDescending(o => (o.GetComponent<ParticleSystemController>().fitness)).ToList(); //note currently you are checking for highest fitness at the end of the list in the for loop above but then highest fitness for the beginnning of the list for the upcoming line
+        this.GetComponent<DisplayIndividuals>().putTopIndividualsOnDisplay();
     }
 
 
