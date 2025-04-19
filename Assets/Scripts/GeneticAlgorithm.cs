@@ -16,6 +16,7 @@ public class GeneticAlgorithm : MonoBehaviour
     int generation = 1;
     bool started = false;
 
+    public GameObject lastPrimeCandidateContainer;
     public GameObject lastPrimeCandidate;
 
     // Start is called before the first frame update
@@ -56,6 +57,7 @@ public class GeneticAlgorithm : MonoBehaviour
     public void SelectPrimeSpeciment(GameObject PrimeIndividualContainer)
     {
 
+
         //set distance of each individual to it
         foreach (GameObject individual in population) 
         {
@@ -64,6 +66,8 @@ public class GeneticAlgorithm : MonoBehaviour
         }
 
         lastPrimeCandidate = PrimeIndividualContainer.transform.GetChild(0).gameObject;
+        lastPrimeCandidate.transform.parent = lastPrimeCandidateContainer.transform;
+        lastPrimeCandidate.transform.position = lastPrimeCandidateContainer.transform.position;
     }
 
     public float getFitnessBasedOnSimilarity(GameObject PrimeIndividual, GameObject IndividualBeingChecked)
@@ -185,20 +189,49 @@ public class GeneticAlgorithm : MonoBehaviour
         List<GameObject> sortedPop = population.OrderBy(o => (o.GetComponent<ParticleSystemController>().fitness)).ToList();
 
         population.Clear();
-        for (int i = (int)(3 * sortedPop.Count / 4.0f) - 1; i < sortedPop.Count - 1; i++)
+
+        //for (int i = (int)(3 * sortedPop.Count / 4.0f) - 1; i < sortedPop.Count - 1; i++)
+        //{
+        //    Debug.Log(i);
+        //    population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
+        //    population.Add(Breed(sortedPop[i + 1], sortedPop[i]));
+        //    population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
+        //    population.Add(Breed(sortedPop[i + 1], sortedPop[i]));
+        //}
+
+
+        //Tournament Style Selection
+        for (int i = 0; i < sortedPop.Count; i++)
         {
-            Debug.Log(i);
-            population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
-            population.Add(Breed(sortedPop[i + 1], sortedPop[i]));
-            population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
-            population.Add(Breed(sortedPop[i + 1], sortedPop[i]));
+            GameObject parent1;
+            GameObject parent2;
+
+            //Selected parent is given a 5% chance to breed otherwise select normally
+            if (Random.value > 0.05f)
+            {
+                parent1 = lastPrimeCandidate;
+                parent2 = SelectParentViaTourney(sortedPop, 4);
+            }
+            // Select two parents via tournament
+            else
+            {
+                parent1 = SelectParentViaTourney(sortedPop, 4);
+                parent2 = SelectParentViaTourney(sortedPop, 4);
+            }
+            population.Add(Breed(parent1, parent2));
         }
 
         //destroy all parents and previous population
+        //Unless is prime individual
         for (int i = 0; i < sortedPop.Count; i++)
         {
-            Destroy(sortedPop[i]);
+            if (!GameObject.ReferenceEquals(sortedPop[i], lastPrimeCandidate))
+            {
+                Destroy(sortedPop[i]);
+            }
+                
         }
+        //sortedPop.Clear();
         generation++;
 
         //put top new individuals on display
@@ -206,6 +239,24 @@ public class GeneticAlgorithm : MonoBehaviour
         this.GetComponent<DisplayIndividuals>().putTopIndividualsOnDisplay();
     }
 
+    //Parent Selection via Tournament 
+    GameObject SelectParentViaTourney(List<GameObject> population, int tournamentSize)
+    {
+        GameObject bestIndiv = null;
+
+        for (int i = 0; i < tournamentSize; i++)
+        {
+            int randomIndex = Random.Range(0, population.Count);
+            GameObject contender = population[randomIndex];
+
+            if (bestIndiv == null || contender.GetComponent<ParticleSystemController>().fitness > bestIndiv.GetComponent<ParticleSystemController>().fitness)
+            {
+                bestIndiv = contender;
+            }
+        }
+
+        return bestIndiv;
+    }
 
     GUIStyle gui = new GUIStyle();
     void OnGUI()

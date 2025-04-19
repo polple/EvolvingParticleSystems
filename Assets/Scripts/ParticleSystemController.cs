@@ -16,8 +16,8 @@ public class ParticleSystemController : MonoBehaviour
     public float startSize;
 
     public float rateOverTime;
-    public bool HasBurst;
-    public bool BurstInterval;
+    public bool hasBurst;
+    public float burstInterval;
 
 
     public void firstGen()
@@ -27,6 +27,8 @@ public class ParticleSystemController : MonoBehaviour
         startSize = Random.Range(0.05f, 1f);
         colour = new Color(Random.Range(0, 1f), Random.Range(0, 1f), Random.Range(0, 1f), 1f);
         rateOverTime = Random.Range(1f, 25f);
+        hasBurst = Random.value < 0.5f;
+        burstInterval = Random.Range(0.1f, 5f);
 
         setAllBasedOnController();
     }

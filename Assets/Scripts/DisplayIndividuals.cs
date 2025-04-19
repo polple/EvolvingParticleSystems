@@ -45,10 +45,22 @@ public class DisplayIndividuals : MonoBehaviour
         //loop over number of containers
         for (int i = 0; i < SpecimenContainers.Length; i++)
         {
-            //do things with the selected individual
-            GameObject topInd = ga.population[i];
-            topInd.transform.position = SpecimenContainers[i].transform.position;
-            topInd.transform.parent = SpecimenContainers[i].transform;
+
+            //if final iteration, get a wildcard (least similar option)
+            if (i == SpecimenContainers.Length - 1)
+            {
+                GameObject worstInd = ga.population[ga.population.Count - 1];
+                worstInd.transform.position = SpecimenContainers[i].transform.position;
+                worstInd.transform.parent = SpecimenContainers[i].transform;
+            }
+            //Else Operate Normally (In order of Best)
+            else
+            {
+                //do things with the selected individual
+                GameObject topInd = ga.population[i];
+                topInd.transform.position = SpecimenContainers[i].transform.position;
+                topInd.transform.parent = SpecimenContainers[i].transform;
+            }
         }
     }
 

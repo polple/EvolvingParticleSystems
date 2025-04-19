@@ -4851,3 +4851,6 @@ MonoBehaviour:
   colour: {r: 0, g: 0, b: 0, a: 0}
   startSpeed: 0
   startSize: 0
+  rateOverTime: 0
+  HasBurst: 0
+  BurstInterval: 0
