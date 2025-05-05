@@ -160,10 +160,10 @@ public class GeneticAlgorithm : MonoBehaviour
             float speedChange = Random.Range(-0.9f, 0.9f);
             float sizeChange = Random.Range(-0.2f, 0.2f);
             float lifetimeChange = Random.Range(-3f, 3f);
-            float colourChange_r = Random.Range(-0.3f, 0.3f);
-            float colourChange_g = Random.Range(-0.3f, 0.3f);
-            float colourChange_b = Random.Range(-0.3f, 0.3f);
-            float rateOverTimeChange = Random.Range(-3, 3f);
+            float colourChange_r = Random.Range(-0.4f, 0.4f);
+            float colourChange_g = Random.Range(-0.4f, 0.4f);
+            float colourChange_b = Random.Range(-0.4f, 0.4f);
+            float rateOverTimeChange = Random.Range(-5, 5f);
             int sizeOverTimeChange = (int)Random.Range(0, 3f);
 
             //can alter x,y, and/or z direction
