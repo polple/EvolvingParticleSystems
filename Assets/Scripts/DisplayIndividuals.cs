@@ -38,29 +38,54 @@ public class DisplayIndividuals : MonoBehaviour
 
     public void putTopIndividualsOnDisplay()
     {
-        int[] specimentNumbers = new int[SpecimenContainers.Length];
+        int[] specimentNumbers = new int[SpecimenContainers.Length]; //used to see if individual has already been picked
+        int newestSelectedSpecimen = 0;
         ga = this.GetComponent<GeneticAlgorithm>();
 
         //In order of Best
         //loop over number of containers
         for (int i = 0; i < SpecimenContainers.Length; i++)
         {
+            int numOfInnerLoops = 0;
+            //go again if the individual selected has already been picked
+            do
+            {
+                //If first Pick the best (In order of Best)
+                if (i==0)
+                {
+                    //do things with the selected individual
+                    newestSelectedSpecimen = i + numOfInnerLoops; //add number of inner loops in case the best is already taken
+                }
+                //if final iteration, get a wildcard (least similar option)
+                else if (i == SpecimenContainers.Length - 1)
+                {
+                    newestSelectedSpecimen = ga.population.Count - 1 - numOfInnerLoops;
+                }
+                //if second or third then use tournament on 2 random individuals
+                else if (i == 1 || i == 2)
+                {
+                    int specimen_1 = Random.Range(0, ga.population.Count);
+                    int specimen_2 = Random.Range(0, ga.population.Count);
+                    if (specimen_1 >= specimen_2)
+                        newestSelectedSpecimen = specimen_1;
+                    else
+                        newestSelectedSpecimen = specimen_2;
+                }
+                //else pick randomly
+                else
+                {
+                    newestSelectedSpecimen = Random.Range(0, ga.population.Count);
+                }
+                numOfInnerLoops++;
+            } while (specimentNumbers.Contains(newestSelectedSpecimen));
 
-            //if final iteration, get a wildcard (least similar option)
-            if (i == SpecimenContainers.Length - 1)
-            {
-                GameObject worstInd = ga.population[ga.population.Count - 1];
-                worstInd.transform.position = SpecimenContainers[i].transform.position;
-                worstInd.transform.parent = SpecimenContainers[i].transform;
-            }
-            //Else Operate Normally (In order of Best)
-            else
-            {
-                //do things with the selected individual
-                GameObject topInd = ga.population[i];
-                topInd.transform.position = SpecimenContainers[i].transform.position;
-                topInd.transform.parent = SpecimenContainers[i].transform;
-            }
+            //Put the newest speciment in the list of things already selected
+            specimentNumbers[i] = newestSelectedSpecimen;
+
+            //Put the selected Individual in the current container
+            GameObject selectedInd = ga.population[newestSelectedSpecimen];
+            selectedInd.transform.position = SpecimenContainers[i].transform.position;
+            selectedInd.transform.parent = SpecimenContainers[i].transform;
         }
     }
 

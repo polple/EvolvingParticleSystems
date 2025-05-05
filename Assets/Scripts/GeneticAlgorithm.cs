@@ -27,6 +27,8 @@ public class GeneticAlgorithm : MonoBehaviour
 
     public void StartGA()
     {
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("GENERATION NO 1");
+
         for (int i = 0; i < populationSize; i++)
         {
             GameObject individual = Instantiate(IndividualPrefab, this.transform.position, this.transform.rotation);
@@ -56,8 +58,6 @@ public class GeneticAlgorithm : MonoBehaviour
 
     public void SelectPrimeSpeciment(GameObject PrimeIndividualContainer)
     {
-
-
         //set distance of each individual to it
         foreach (GameObject individual in population) 
         {
@@ -68,6 +68,11 @@ public class GeneticAlgorithm : MonoBehaviour
         lastPrimeCandidate = PrimeIndividualContainer.transform.GetChild(0).gameObject;
         lastPrimeCandidate.transform.parent = lastPrimeCandidateContainer.transform;
         lastPrimeCandidate.transform.position = lastPrimeCandidateContainer.transform.position;
+
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("SELECTED_INDIVIDUAL: " + lastPrimeCandidate.GetComponent<ParticleSystemController>().DNA);
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("--------------------");
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("GENERATION NO " + (generation+1)); //start of next generation
+
     }
 
     public float getFitnessBasedOnSimilarity(GameObject PrimeIndividual, GameObject IndividualBeingChecked)
@@ -79,11 +84,12 @@ public class GeneticAlgorithm : MonoBehaviour
         //break each feature into a 0 to 1 similarity scrore
         float sizeSimilarity = CompareValues(prime.startSize, indiv.startSize);
         float speedSimilarity = CompareValues(prime.startSpeed, indiv.startSpeed);
+        float lifetimeSimilarity = CompareValues(prime.startLifetime, indiv.startLifetime);
         float rateSimilarity = CompareValues(prime.rateOverTime, indiv.rateOverTime);
         float colorSimilarity = CompareColors(prime.colour, indiv.colour);
         float directionSimilarity = CompareVectors(prime.direction, indiv.direction);
 
-        float totalSimilarity = (sizeSimilarity + speedSimilarity + rateSimilarity + colorSimilarity + directionSimilarity);
+        float totalSimilarity = (sizeSimilarity + speedSimilarity + lifetimeSimilarity + rateSimilarity + colorSimilarity + directionSimilarity);
         return totalSimilarity;
     }
 
@@ -115,6 +121,12 @@ public class GeneticAlgorithm : MonoBehaviour
             else { 
                 cont.startSize = parent2.GetComponent<ParticleSystemController>().startSize; }
 
+            //Lifetime to inherit
+            if (Random.value > 0.5f){
+                cont.startLifetime = parent1.GetComponent<ParticleSystemController>().startLifetime;}
+            else{
+                cont.startLifetime = parent2.GetComponent<ParticleSystemController>().startLifetime;}
+
             //Direction to inherit
             if (Random.value > 0.5f) { 
                 cont.direction = parent1.GetComponent<ParticleSystemController>().direction; }
@@ -133,18 +145,26 @@ public class GeneticAlgorithm : MonoBehaviour
             else { 
                 cont.rateOverTime = parent2.GetComponent<ParticleSystemController>().rateOverTime; }
 
+            //SizeOverTime to inherit
+            if (Random.value > 0.5f) { 
+                cont.sizeOverTimeVar = parent1.GetComponent<ParticleSystemController>().sizeOverTimeVar; }
+            else { 
+                cont.sizeOverTimeVar = parent2.GetComponent<ParticleSystemController>().sizeOverTimeVar; }
+
         }
 
         //Potential Smaller Additional Mutation
-        if (rand > 20) //smaller mutations with 80% chance to occur
+        if (rand > 30) //smaller mutations with 30% chance to occur
         {
             float directionChange = Random.Range(-10f, 10f);
-            float speedChange = Random.Range(-0.5f, 0.5f);
+            float speedChange = Random.Range(-0.9f, 0.9f);
             float sizeChange = Random.Range(-0.2f, 0.2f);
+            float lifetimeChange = Random.Range(-3f, 3f);
             float colourChange_r = Random.Range(-0.3f, 0.3f);
             float colourChange_g = Random.Range(-0.3f, 0.3f);
             float colourChange_b = Random.Range(-0.3f, 0.3f);
             float rateOverTimeChange = Random.Range(-3, 3f);
+            int sizeOverTimeChange = (int)Random.Range(0, 3f);
 
             //can alter x,y, and/or z direction
             int pickDir = Random.Range(0, 4);
@@ -156,9 +176,13 @@ public class GeneticAlgorithm : MonoBehaviour
             if (Random.value > 0.5f)
                 cont.startSpeed = cont.startSpeed + speedChange;
 
-            //partial mutate startSize
-            if (Random.value > 0.5f)
+            //partial mutate startSize //cant go below 0.1
+            if (Random.value > 0.5f && (cont.startSize+sizeChange > 0.1f))
                 cont.startSize = cont.startSize + sizeChange;
+
+            //partial mutate startLifetime //cant go below 0.1
+            if (Random.value > 0.5f && (cont.startLifetime+lifetimeChange > 0.1f))
+                cont.startLifetime = cont.startLifetime + lifetimeChange;
 
             //partial mutate Colour
             if (Random.value > 0.5f && cont.colour.r+colourChange_r<=1 && cont.colour.r+colourChange_r>=0)
@@ -168,9 +192,20 @@ public class GeneticAlgorithm : MonoBehaviour
             if (Random.value > 0.5f && cont.colour.b+colourChange_b<=1 && cont.colour.b + colourChange_b >= 0)
                 cont.colour = new Color(cont.colour.r, cont.colour.g, cont.colour.b + colourChange_b, 1f);
 
-            //partial mutate startSize
-            if (Random.value > 0.5f)
+            //partial mutate rateOverTime
+            if (Random.value > 0.5f && (cont.rateOverTime + rateOverTimeChange > 0.5f))
                 cont.rateOverTime = cont.rateOverTime + rateOverTimeChange;
+
+            //mutate the sizeOverTime
+            if (Random.value > 0.7f)
+            {
+                if (sizeOverTimeChange == 0)
+                    cont.sizeOverTimeVar = ParticleSystemController.SizeOverTime.Shrinks;
+                else if (sizeOverTimeChange == 1)
+                    cont.sizeOverTimeVar = ParticleSystemController.SizeOverTime.NoChange;
+                else if (sizeOverTimeChange == 2)
+                    cont.sizeOverTimeVar = ParticleSystemController.SizeOverTime.Grows;
+            }
 
         }
 
@@ -190,15 +225,6 @@ public class GeneticAlgorithm : MonoBehaviour
 
         population.Clear();
 
-        //for (int i = (int)(3 * sortedPop.Count / 4.0f) - 1; i < sortedPop.Count - 1; i++)
-        //{
-        //    Debug.Log(i);
-        //    population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
-        //    population.Add(Breed(sortedPop[i + 1], sortedPop[i]));
-        //    population.Add(Breed(sortedPop[i], sortedPop[i + 1]));
-        //    population.Add(Breed(sortedPop[i + 1], sortedPop[i]));
-        //}
-
 
         //Tournament Style Selection
         for (int i = 0; i < sortedPop.Count; i++)
@@ -210,13 +236,13 @@ public class GeneticAlgorithm : MonoBehaviour
             if (Random.value > 0.05f)
             {
                 parent1 = lastPrimeCandidate;
-                parent2 = SelectParentViaTourney(sortedPop, 4);
+                parent2 = SelectParentViaTourney(sortedPop, 3);
             }
             // Select two parents via tournament
             else
             {
-                parent1 = SelectParentViaTourney(sortedPop, 4);
-                parent2 = SelectParentViaTourney(sortedPop, 4);
+                parent1 = SelectParentViaTourney(sortedPop, 3);
+                parent2 = SelectParentViaTourney(sortedPop, 3);
             }
             population.Add(Breed(parent1, parent2));
         }
@@ -240,7 +266,7 @@ public class GeneticAlgorithm : MonoBehaviour
     }
 
     //Parent Selection via Tournament 
-    GameObject SelectParentViaTourney(List<GameObject> population, int tournamentSize)
+    public GameObject SelectParentViaTourney(List<GameObject> population, int tournamentSize)
     {
         GameObject bestIndiv = null;
 
