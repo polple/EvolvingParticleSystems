@@ -22,12 +22,18 @@ public class ParticleSystemController : MonoBehaviour
     public enum SizeOverTime { Shrinks, NoChange, Grows }
     public SizeOverTime sizeOverTimeVar; //currently sizeOverTime does not mutate and is not counted in similarity score
 
+    public enum MeshType { Cube, Sphere }
+    public MeshType meshTypeVar;
+
+    public enum EmissionShape { Cone, Sphere }
+    public EmissionShape emissionShapeVar;
+
     public string DNA = "--ERROR DNA IS BLANK--";
 
     public void firstGen()
     {
         direction = Quaternion.LookRotation(Random.onUnitSphere).eulerAngles;
-        startSpeed = Random.Range(0.05f, 2f);
+        startSpeed = Random.Range(-1.0f, 2f);
         startSize = Random.Range(0.05f, 0.8f);
         startLifetime = Random.Range(0.5f, 8f);
         colour = new Color(Random.Range(0, 1f), Random.Range(0, 1f), Random.Range(0, 1f), 1f);
@@ -35,6 +41,8 @@ public class ParticleSystemController : MonoBehaviour
         //hasBurst = Random.value < 0.5f;
         //burstInterval = Random.Range(0.1f, 5f);
         sizeOverTimeVar = (SizeOverTime)Random.Range(0, 3);
+        meshTypeVar = (MeshType)Random.Range(0, 2);
+        emissionShapeVar = (EmissionShape)Random.Range(0, 2);
 
         setAllBasedOnController();
     }
@@ -108,6 +116,44 @@ public class ParticleSystemController : MonoBehaviour
         sizeOverTime.size = new ParticleSystem.MinMaxCurve(1.0f, curve);
     }
 
+    public void setMeshType()
+    {
+        var renderer = GetComponent<ParticleSystemRenderer>();
+        switch (meshTypeVar)
+        {
+            case MeshType.Cube:
+                renderer.mesh = getPrimitiveMesh(PrimitiveType.Cube);
+                break;
+
+            case MeshType.Sphere:
+                renderer.mesh = getPrimitiveMesh(PrimitiveType.Sphere);
+                break;
+        }
+    }
+
+    public void setEmissionShapeType()
+    {
+        var shape = GetComponent<ParticleSystem>().shape;
+        switch (emissionShapeVar)
+        {
+            case EmissionShape.Cone:
+                shape.shapeType = ParticleSystemShapeType.Cone;
+                break;
+
+            case EmissionShape.Sphere:
+                shape.shapeType = ParticleSystemShapeType.Sphere;
+                break;
+        }
+    }
+
+    private Mesh getPrimitiveMesh(PrimitiveType type)
+    {
+        GameObject temp = GameObject.CreatePrimitive(type);
+        Mesh mesh = temp.GetComponent<MeshFilter>().sharedMesh;
+        DestroyImmediate(temp);
+        return mesh;
+    }
+
 
     public void setAllBasedOnController()
     {
@@ -118,8 +164,10 @@ public class ParticleSystemController : MonoBehaviour
         setStartLifetime();
         setRateOverTime();
         setSizeOverTime();
+        setMeshType();
+        setEmissionShapeType();
 
-        DNA = direction.ToString() + ";" + colour.ToString() + ";" + startSpeed.ToString() + ";" + startSize.ToString() + ";" + startLifetime.ToString() + ";" + rateOverTime.ToString() + ";" + sizeOverTimeVar.ToString(); //set DNA
+        DNA = direction.ToString() + ";" + colour.ToString() + ";" + startSpeed.ToString() + ";" + startSize.ToString() + ";" + startLifetime.ToString() + ";" + rateOverTime.ToString() + ";" + sizeOverTimeVar.ToString()+ ";" + meshTypeVar.ToString() +";" + emissionShapeVar.ToString(); //set DNA
         FindAnyObjectByType<WriteDataToFile>().WriteToFile(DNA);
     }
 

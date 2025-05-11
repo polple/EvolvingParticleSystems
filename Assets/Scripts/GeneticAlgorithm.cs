@@ -14,6 +14,7 @@ public class GeneticAlgorithm : MonoBehaviour
     public List<GameObject> population = new List<GameObject>();
 
     int generation = 1;
+    float totalSimilarity = 0; //the total similarity of all members of a generation to the prime specimen from the last generation
     bool started = false;
 
     public GameObject lastPrimeCandidateContainer;
@@ -28,6 +29,7 @@ public class GeneticAlgorithm : MonoBehaviour
     public void StartGA()
     {
         FindAnyObjectByType<WriteDataToFile>().WriteToFile("GENERATION NO 1");
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("TOTAL SIMILARITY 0");
 
         for (int i = 0; i < populationSize; i++)
         {
@@ -58,11 +60,14 @@ public class GeneticAlgorithm : MonoBehaviour
 
     public void SelectPrimeSpeciment(GameObject PrimeIndividualContainer)
     {
+        totalSimilarity = 0;
+
         //set distance of each individual to it
         foreach (GameObject individual in population) 
         {
             float fitness = getFitnessBasedOnSimilarity(PrimeIndividualContainer.transform.GetChild(0).gameObject, individual);
             individual.GetComponent<ParticleSystemController>().fitness = fitness;
+            totalSimilarity = totalSimilarity + fitness;
         }
 
         lastPrimeCandidate = PrimeIndividualContainer.transform.GetChild(0).gameObject;
@@ -72,6 +77,7 @@ public class GeneticAlgorithm : MonoBehaviour
         FindAnyObjectByType<WriteDataToFile>().WriteToFile("SELECTED_INDIVIDUAL: " + lastPrimeCandidate.GetComponent<ParticleSystemController>().DNA);
         FindAnyObjectByType<WriteDataToFile>().WriteToFile("--------------------");
         FindAnyObjectByType<WriteDataToFile>().WriteToFile("GENERATION NO " + (generation+1)); //start of next generation
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("TOTAL SIMILARITY " + totalSimilarity); //start of next generation
 
     }
 
@@ -90,6 +96,15 @@ public class GeneticAlgorithm : MonoBehaviour
         float directionSimilarity = CompareVectors(prime.direction, indiv.direction);
 
         float totalSimilarity = (sizeSimilarity + speedSimilarity + lifetimeSimilarity + rateSimilarity + colorSimilarity + directionSimilarity);
+
+        //account for the discrete features (no range just 0 (different) or 1 (same))
+        if (prime.sizeOverTimeVar == indiv.sizeOverTimeVar)
+            totalSimilarity++;
+        if (prime.meshTypeVar == indiv.meshTypeVar)
+            totalSimilarity++;
+        if (prime.emissionShapeVar == indiv.emissionShapeVar)
+            totalSimilarity++;
+
         return totalSimilarity;
     }
 
@@ -151,10 +166,28 @@ public class GeneticAlgorithm : MonoBehaviour
             else { 
                 cont.sizeOverTimeVar = parent2.GetComponent<ParticleSystemController>().sizeOverTimeVar; }
 
+            //Mesh to inherit
+            if (Random.value > 0.5f)
+            {
+                cont.meshTypeVar = parent1.GetComponent<ParticleSystemController>().meshTypeVar;}
+            else
+            {
+                cont.meshTypeVar = parent2.GetComponent<ParticleSystemController>().meshTypeVar;}
+
+            //Emission shape to inherit
+            if (Random.value > 0.5f)
+            {
+                cont.emissionShapeVar = parent1.GetComponent<ParticleSystemController>().emissionShapeVar;
+            }
+            else
+            {
+                cont.emissionShapeVar = parent2.GetComponent<ParticleSystemController>().emissionShapeVar;
+            }
+
         }
 
         //Potential Smaller Additional Mutation
-        if (rand > 30) //smaller mutations with 30% chance to occur
+        if (rand > 30) // mutations with 30% chance to occur
         {
             float directionChange = Random.Range(-10f, 10f);
             float speedChange = Random.Range(-0.9f, 0.9f);
@@ -165,6 +198,8 @@ public class GeneticAlgorithm : MonoBehaviour
             float colourChange_b = Random.Range(-0.4f, 0.4f);
             float rateOverTimeChange = Random.Range(-5, 5f);
             int sizeOverTimeChange = (int)Random.Range(0, 3f);
+            int meshTypeChange = (int)Random.Range(0, 2f);
+            int emissionShapeChange = (int)Random.Range(0, 2f);
 
             //can alter x,y, and/or z direction
             int pickDir = Random.Range(0, 4);
@@ -207,6 +242,23 @@ public class GeneticAlgorithm : MonoBehaviour
                     cont.sizeOverTimeVar = ParticleSystemController.SizeOverTime.Grows;
             }
 
+            //mutate the Mesh type
+            if (Random.value > 0.7f)
+            {
+                if (meshTypeChange == 0)
+                    cont.meshTypeVar = ParticleSystemController.MeshType.Cube;
+                else if (meshTypeChange == 1)
+                    cont.meshTypeVar = ParticleSystemController.MeshType.Sphere;
+            }
+
+            // mutate the Emission Shape
+            if (Random.value > 0.7f)
+            {
+                if (meshTypeChange == 0)
+                    cont.emissionShapeVar = ParticleSystemController.EmissionShape.Cone;
+                else if (meshTypeChange == 1)
+                    cont.emissionShapeVar = ParticleSystemController.EmissionShape.Sphere;
+            }
         }
 
         //Apply the DNA to the offsprings' particle system
@@ -292,6 +344,8 @@ public class GeneticAlgorithm : MonoBehaviour
         GUI.BeginGroup(new Rect(10, 2, 250, 150));
         GUI.Label(new Rect(10, 2, 200, 30), "Gen: " + generation, gui);
         GUI.Label(new Rect(10, 20, 200, 30), "Population: " + population.Count, gui);
+        GUI.Label(new Rect(10, 38, 200, 30), "Pop Similarity: " + totalSimilarity, gui);
+        GUI.Label(new Rect(10, 56, 200, 30), "Max Similarity: " + population.Count * 9, gui);
         //GUI.Label(new Rect(10, 38, 200, 30), string.Format("Time: {0:0.00}", timePassed), gui);
         GUI.EndGroup();
     }
@@ -302,10 +356,28 @@ public class GeneticAlgorithm : MonoBehaviour
     //Linear Value Comparison
     private static float CompareValues(float a, float b)
     {
-        if (Mathf.Approximately(a, b)) return 1f;
-            float maxPossibleDifference = Mathf.Max(a, b);
-        if (maxPossibleDifference == 0) return 1f; // Avoid division by zero
-            float difference = Mathf.Abs(a - b);
+        if (Mathf.Approximately(a, b)) 
+            return 1f;
+
+        float maxPossibleDifference = Mathf.Max(a, b);
+
+        if (maxPossibleDifference == 0) 
+            return 1f; // Avoid division by zero
+
+        //checking for negative numbers
+        //if opposite signs then 0
+        if (Mathf.Sign(a) != Mathf.Sign(b))
+            return 0f;
+        //if both are negative then make both positive and update the max number
+        if (Mathf.Sign(a) == -1 && Mathf.Sign(b) == -1)
+        {
+            a = Mathf.Abs(a);
+            b = Mathf.Abs(b);
+            maxPossibleDifference = Mathf.Max(a, b);
+        }
+
+        float difference = Mathf.Abs(a - b);
+
         return 1f - (difference / maxPossibleDifference);
     }
 
