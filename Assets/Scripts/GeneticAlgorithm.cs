@@ -77,7 +77,7 @@ public class GeneticAlgorithm : MonoBehaviour
         FindAnyObjectByType<WriteDataToFile>().WriteToFile("SELECTED_INDIVIDUAL: " + lastPrimeCandidate.GetComponent<ParticleSystemController>().DNA);
         FindAnyObjectByType<WriteDataToFile>().WriteToFile("--------------------");
         FindAnyObjectByType<WriteDataToFile>().WriteToFile("GENERATION NO " + (generation+1)); //start of next generation
-        FindAnyObjectByType<WriteDataToFile>().WriteToFile("TOTAL SIMILARITY " + totalSimilarity); //start of next generation
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("SIMILARITY SCORE" + totalSimilarity*100/ (population.Count * 9)); //start of next generation
 
     }
 
@@ -346,6 +346,7 @@ public class GeneticAlgorithm : MonoBehaviour
         GUI.Label(new Rect(10, 20, 200, 30), "Population: " + population.Count, gui);
         GUI.Label(new Rect(10, 38, 200, 30), "Pop Similarity: " + totalSimilarity, gui);
         GUI.Label(new Rect(10, 56, 200, 30), "Max Similarity: " + population.Count * 9, gui);
+        GUI.Label(new Rect(10, 74, 200, 30), "Similarity Score: " + (totalSimilarity * 100 / (population.Count * 9)) +"%", gui);
         //GUI.Label(new Rect(10, 38, 200, 30), string.Format("Time: {0:0.00}", timePassed), gui);
         GUI.EndGroup();
     }
