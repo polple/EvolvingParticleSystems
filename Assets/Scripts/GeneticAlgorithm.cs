@@ -41,7 +41,8 @@ public class GeneticAlgorithm : MonoBehaviour
         }
         started = true;
 
-        this.GetComponent<DisplayIndividuals>().putRandomIndividualsOnDisplay();
+        //this.GetComponent<DisplayIndividuals>().putRandomIndividualsOnDisplay();
+        this.GetComponent<DisplayIndividuals>().putTopIndividualsOnDisplay();
     }
 
     // Update is called once per frame
@@ -189,7 +190,7 @@ public class GeneticAlgorithm : MonoBehaviour
         //Potential Smaller Additional Mutation
         if (rand > 30) // mutations with 30% chance to occur
         {
-            float directionChange = Random.Range(-10f, 10f);
+            float directionChange = Random.Range(-40f, 40f);
             float speedChange = Random.Range(-0.9f, 0.9f);
             float sizeChange = Random.Range(-0.2f, 0.2f);
             float lifetimeChange = Random.Range(-3f, 3f);
@@ -355,7 +356,7 @@ public class GeneticAlgorithm : MonoBehaviour
     //------------Comparison Functions----------------//
 
     //Linear Value Comparison
-    private static float CompareValues(float a, float b)
+    public static float CompareValues(float a, float b)
     {
         if (Mathf.Approximately(a, b)) 
             return 1f;
@@ -366,7 +367,7 @@ public class GeneticAlgorithm : MonoBehaviour
             return 1f; // Avoid division by zero
 
         //checking for negative numbers
-        //if opposite signs then 0
+        //if opposite signs then 0 since even if they are close they will act very different
         if (Mathf.Sign(a) != Mathf.Sign(b))
             return 0f;
         //if both are negative then make both positive and update the max number
@@ -383,7 +384,7 @@ public class GeneticAlgorithm : MonoBehaviour
     }
 
     //Colour Value Comparison
-    private static float CompareColors(Color a, Color b)
+    public static float CompareColors(Color a, Color b)
     {
         float rDiff = Mathf.Abs(a.r - b.r);
         float gDiff = Mathf.Abs(a.g - b.g);
@@ -394,7 +395,7 @@ public class GeneticAlgorithm : MonoBehaviour
     }
 
     //Vector Comparison
-    private static float CompareVectors(Vector3 a, Vector3 b)
+    public static float CompareVectors(Vector3 a, Vector3 b)
     {
         if (a == b) 
             return 1f;

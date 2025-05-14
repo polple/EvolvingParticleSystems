@@ -28,6 +28,10 @@ public class ParticleSystemController : MonoBehaviour
     public enum EmissionShape { Cone, Sphere }
     public EmissionShape emissionShapeVar;
 
+    //scores for certain metrics
+    public float fireSimilarity = 0;
+    public float bubbleSimilarity = 0;
+
     public string DNA = "--ERROR DNA IS BLANK--";
 
     public void firstGen()
@@ -154,6 +158,32 @@ public class ParticleSystemController : MonoBehaviour
         return mesh;
     }
 
+    //calculate similarity to fire
+    public void calcFieryScore()
+    {
+        fireSimilarity = 0;
+        fireSimilarity = fireSimilarity + CompareValues(startLifetime, 0.5f);
+        fireSimilarity = fireSimilarity + CompareValues(rateOverTime, 30f);
+        fireSimilarity = fireSimilarity + CompareColors(colour, Color.red);
+        fireSimilarity = fireSimilarity + CompareValues(direction.x, -90);
+        if (this.emissionShapeVar == EmissionShape.Cone)
+            fireSimilarity++;
+        if (this.sizeOverTimeVar == SizeOverTime.Shrinks)
+            fireSimilarity++;
+    }
+
+    //Calculate similarity to bubbles
+    public void calcBubbleScore()
+    { 
+        bubbleSimilarity = 0;
+        bubbleSimilarity = bubbleSimilarity + CompareColors(colour, Color.cyan);
+        if (this.startLifetime > 1f)
+            bubbleSimilarity++;
+        if (this.meshTypeVar == MeshType.Sphere)
+            bubbleSimilarity++;
+        if (this.sizeOverTimeVar == SizeOverTime.Grows)
+            bubbleSimilarity++;
+    }
 
     public void setAllBasedOnController()
     {
@@ -167,8 +197,62 @@ public class ParticleSystemController : MonoBehaviour
         setMeshType();
         setEmissionShapeType();
 
+        calcFieryScore();
+        calcBubbleScore();
+
         DNA = direction.ToString() + ";" + colour.ToString() + ";" + startSpeed.ToString() + ";" + startSize.ToString() + ";" + startLifetime.ToString() + ";" + rateOverTime.ToString() + ";" + sizeOverTimeVar.ToString()+ ";" + meshTypeVar.ToString() +";" + emissionShapeVar.ToString(); //set DNA
         FindAnyObjectByType<WriteDataToFile>().WriteToFile(DNA);
     }
 
+
+
+    //------------Comparison Functions----------------//
+
+    //Linear Value Comparison
+    public static float CompareValues(float a, float b)
+    {
+        if (Mathf.Approximately(a, b))
+            return 1f;
+
+        float maxPossibleDifference = Mathf.Max(a, b);
+
+        if (maxPossibleDifference == 0)
+            return 1f; // Avoid division by zero
+
+        //checking for negative numbers
+        //if opposite signs then 0 since even if they are close they will act very different
+        if (Mathf.Sign(a) != Mathf.Sign(b))
+            return 0f;
+        //if both are negative then make both positive and update the max number
+        if (Mathf.Sign(a) == -1 && Mathf.Sign(b) == -1)
+        {
+            a = Mathf.Abs(a);
+            b = Mathf.Abs(b);
+            maxPossibleDifference = Mathf.Max(a, b);
+        }
+
+        float difference = Mathf.Abs(a - b);
+
+        return 1f - (difference / maxPossibleDifference);
+    }
+
+    //Colour Value Comparison
+    public static float CompareColors(Color a, Color b)
+    {
+        float rDiff = Mathf.Abs(a.r - b.r);
+        float gDiff = Mathf.Abs(a.g - b.g);
+        float bDiff = Mathf.Abs(a.b - b.b);
+        float aDiff = Mathf.Abs(a.a - b.a);
+        float avgDiff = (rDiff + gDiff + bDiff + aDiff) / 4f;
+        return 1f - avgDiff;
+    }
+
+    //Vector Comparison
+    public static float CompareVectors(Vector3 a, Vector3 b)
+    {
+        if (a == b)
+            return 1f;
+        else
+            return Vector3.Dot(a.normalized, b.normalized) * 0.5f + 0.5f; // Convert [-1,1] to [0,1]
+    }
 }

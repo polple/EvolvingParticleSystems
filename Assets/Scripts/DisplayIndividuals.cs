@@ -51,15 +51,48 @@ public class DisplayIndividuals : MonoBehaviour
             do
             {
                 //If first Pick the best (In order of Best)
-                if (i==0)
+                if (i == 0)
                 {
                     //do things with the selected individual
                     newestSelectedSpecimen = i + numOfInnerLoops; //add number of inner loops in case the best is already taken
                 }
-                //if final iteration, get a wildcard (least similar option)
-                else if (i == SpecimenContainers.Length - 1)
+                //if forth one pick the fieriest one
+                else if (i == 3)
                 {
-                    newestSelectedSpecimen = ga.population.Count - 1 - numOfInnerLoops;
+                    float mostFireScore = -1;
+                  
+                    for (int j=0; j< ga.population.Count; j++)
+                    {
+                        var script = ga.population[j].GetComponent<ParticleSystemController>();
+
+                        if (script.fireSimilarity > mostFireScore)
+                        {
+                            //dumb janky fix to avoid out of index when already in another container (yumm such a good fix (im tired))
+                            if (j + numOfInnerLoops >= 20) numOfInnerLoops = numOfInnerLoops - 10;
+
+                            mostFireScore = script.fireSimilarity;
+                            newestSelectedSpecimen = j + numOfInnerLoops;
+                        }
+                    }
+                }
+                //if fifth one pick the bubbliest one
+                else if (i == 4)
+                {
+                    float mostBubbleScore = -1;
+
+                    for (int j = 0; j < ga.population.Count; j++)
+                    {
+                        ParticleSystemController par = ga.population[j].GetComponent<ParticleSystemController>();
+
+                        if (par.bubbleSimilarity > mostBubbleScore)
+                        {
+                            //dumb janky fix to avoid out of index when already in another container (yumm such a good fix (im tired))
+                            if (j+numOfInnerLoops>=20) numOfInnerLoops = numOfInnerLoops-10;
+
+                            mostBubbleScore = par.bubbleSimilarity;
+                            newestSelectedSpecimen = j + numOfInnerLoops;
+                        }
+                    }
                 }
                 //if second or third then use tournament on 2 random individuals
                 else if (i == 1 || i == 2)
@@ -70,6 +103,11 @@ public class DisplayIndividuals : MonoBehaviour
                         newestSelectedSpecimen = specimen_1;
                     else
                         newestSelectedSpecimen = specimen_2;
+                }
+                //if final iteration, get a wildcard (least similar option)
+                else if (i == SpecimenContainers.Length - 1)
+                {
+                    newestSelectedSpecimen = ga.population.Count - 1 - numOfInnerLoops;
                 }
                 //else pick randomly
                 else
@@ -82,10 +120,14 @@ public class DisplayIndividuals : MonoBehaviour
             //Put the newest speciment in the list of things already selected
             specimentNumbers[i] = newestSelectedSpecimen;
 
-            //Put the selected Individual in the current container
-            GameObject selectedInd = ga.population[newestSelectedSpecimen];
-            selectedInd.transform.position = SpecimenContainers[i].transform.position;
-            selectedInd.transform.parent = SpecimenContainers[i].transform;
+            try
+            {
+                //Put the selected Individual in the current container
+                GameObject selectedInd = ga.population[newestSelectedSpecimen];
+                selectedInd.transform.position = SpecimenContainers[i].transform.position;
+                selectedInd.transform.parent = SpecimenContainers[i].transform;
+            }
+            catch { Debug.Log(newestSelectedSpecimen + " df innerloop " + numOfInnerLoops +" df container "+ i); }
         }
     }
 
