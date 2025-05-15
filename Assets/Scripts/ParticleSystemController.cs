@@ -64,6 +64,8 @@ public class ParticleSystemController : MonoBehaviour
         //var main = GetComponent<ParticleSystem>().main;
         //main.startColor = colour;
         //set colour of the render material
+        var renderer = this.GetComponent<Renderer>();
+        renderer.material.shader = Shader.Find("Universal Render Pipeline/Lit");
         GetComponent<Renderer>().material.color = colour;
     }
 

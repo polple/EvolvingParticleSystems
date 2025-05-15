@@ -1830,6 +1830,63 @@ RectTransform:
   m_AnchoredPosition: {x: 507.5, y: -227}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1001 &381743272
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4463.2554
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 900.724
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5932.4165
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122603380645240735, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6569497064323394938, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
+      propertyPath: m_Name
+      value: Individual_ParticleSystem____ Here to include shaders in build
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: cdfdb7a87a4fc1744ae4d31b9e4f1c93, type: 3}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -9684,3 +9741,4 @@ SceneRoots:
   - {fileID: 463505851}
   - {fileID: 1450542156}
   - {fileID: 583122070}
+  - {fileID: 381743272}
