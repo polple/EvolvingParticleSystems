@@ -200,7 +200,7 @@ public class ParticleSystemController : MonoBehaviour
         calcFieryScore();
         calcBubbleScore();
 
-        DNA = direction.ToString() + ";" + colour.ToString() + ";" + startSpeed.ToString() + ";" + startSize.ToString() + ";" + startLifetime.ToString() + ";" + rateOverTime.ToString() + ";" + sizeOverTimeVar.ToString()+ ";" + meshTypeVar.ToString() +";" + emissionShapeVar.ToString(); //set DNA
+        DNA = direction.ToString() + ";" + colour.ToString() + ";" + startSpeed.ToString() + ";" + startSize.ToString() + ";" + startLifetime.ToString() + ";" + rateOverTime.ToString() + ";" + sizeOverTimeVar.ToString()+ ";" + meshTypeVar.ToString() +";" + emissionShapeVar.ToString()+";"+fireSimilarity+";"+bubbleSimilarity; //set DNA
         FindAnyObjectByType<WriteDataToFile>().WriteToFile(DNA);
     }
 

@@ -82,6 +82,11 @@ public class GeneticAlgorithm : MonoBehaviour
 
     }
 
+    public void SavePrimeSpeciment(GameObject SelectedIndividualContainer)
+    {
+        FindAnyObjectByType<WriteDataToFile>().WriteToFile("--SAVED_INDIVIDUAL: " + SelectedIndividualContainer.transform.GetChild(0).gameObject.GetComponent<ParticleSystemController>().DNA);
+    }
+
     public float getFitnessBasedOnSimilarity(GameObject PrimeIndividual, GameObject IndividualBeingChecked)
     {
         //get their controllers
